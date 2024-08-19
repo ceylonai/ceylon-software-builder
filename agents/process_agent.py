@@ -1,7 +1,7 @@
 from ceylon import Agent, on_message
 from loguru import logger
 
-from data.message import Message
+from data.message import Message, SystemMessage
 from data.user_details import UserDetails
 
 
@@ -14,6 +14,10 @@ class ProcessAgent(Agent):
     @on_message(Message)
     async def on_chat_message(self, message: Message, agent_id: "str", time: "int"):
         logger.info(f"Received message {message} from {agent_id} at {time}")
+        await self.broadcast_data(SystemMessage(
+            type=SystemMessage.human_interaction,
+            content=f"What is this?"
+        ))
 
     async def run(self, inputs: "bytes"):
         logger.info(f"Process agent running with inputs: {inputs}")

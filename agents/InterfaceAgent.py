@@ -1,15 +1,13 @@
-import datetime
 import pickle
 
 import socketio
-from ceylon import Agent
+from ceylon import Agent, on_message
 from fastapi import FastAPI
 from loguru import logger
-from pydantic import BaseModel
 from starlette.middleware.cors import CORSMiddleware
 from uvicorn import Config, Server
 
-from data.message import Message
+from data.message import Message, SystemMessage
 from data.user_details import UserDetails
 
 # Create a new AsyncServer
@@ -56,7 +54,12 @@ class InterfaceAgent(Agent):
         server = Server(config)
         await server.serve()
 
-    async def on_message(self, agent_id: "str", data: "bytes", time: "int"):
-        logger.info(f"Received message from {agent_id}: {data}")
-        data = pickle.loads(data)
-        logger.info(f"Received message from {agent_id}: {data}")
+    # async def on_message(self, agent_id: "str", data: "bytes", time: "int"):
+    #     logger.info(f"Received message from {agent_id}: {data}")
+    #     data = pickle.loads(data)
+    #     logger.info(f"Received message from {agent_id}: {data}")
+
+    @on_message(SystemMessage)
+    async def on_system_message(self, message: SystemMessage, agent_id: "str", time: "int"):
+        logger.info(f"Received system message from {agent_id}: {message}")
+        await sio.emit("system_message", message)
